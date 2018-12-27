@@ -28,7 +28,11 @@ def deepfry(input,output,brightness=1,saturation=1,contrast=None,sharpen=None,no
 def splitAndFry(video,output,**kwargs):
 	tf = tempdir.TemporaryFolder("deepfry")
 	magick.convert(video,tf.name+"/deepfry-%05d.jpg")
+	total = len(os.listdir(tf.name))
+	i = 0
 	for image in listdir(tf.name):
+		i+=1
+		print("\rDeepfrying {!s} of {!s}".format(i,total),end="")
 		deepfry(image,image,**kwargs)
 	magick.convert(tf.name+"/*.jpg",output)
 	os.chmod(output,0o644)
