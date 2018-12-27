@@ -1,5 +1,5 @@
-import tempfile, subprocess, os
-from libdeepfry import magick, tempdir
+import tempfile, subprocess, os, random
+from libdeepfry import magick, tempdir, emoji
 
 RAW_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -10,11 +10,16 @@ def listdir(dir):
 def getImageSize(filename):
 	return subprocess.check_output("identify {} | cut -d' ' -f3".format(filename),shell=True).decode("ascii").strip()
 
-def deepfry(input,output,brightness=1,saturation=1,contrast=None,sharpen=None,noise=False,emojilocation=[]):
+def deepfry(input,output,brightness=1,saturation=1,contrast=None,sharpen=None,noise=False,emojicount=0):
 	tf = tempfile.NamedTemporaryFile(suffix="jpg")
 	magick.convert(input,tf.name,format="jpg")
-	for emoji in emojilocation:
-		magick.composite(os.path.join(RAW_DIR,"emojis",emoji[0]),tf.name,tf.name,format="jpg",geometry="{:+02}{:+02}".format(*emoji[1:]))
+	if emojicount>0:
+		size = [int(x) for x in getImageSize(tf.name).split("x")]
+		for i in range(emojicount):
+			em = emoji.getImage(random.choice(emoji.listEmoji()))
+			x = random.randint(0,size[0])
+			y = random.randint(0,size[1])
+			magick.composite(em,tf.name,tf.name,format="jpg",geometry="{:+02}{:+02}".format(x,y))
 	if noise:
 		magick.composite(os.path.join(RAW_DIR,"noise.jpg"),tf.name,tf.name,blend=20)
 	magick.convert(tf.name,tf.name,modulate="{},{},100".format(int(round(brightness*100)),int(round(saturation*100))),quality="1%")
