@@ -1,4 +1,7 @@
-import magick, tempfile, subprocess, tempdir, os
+import tempfile, subprocess, os
+from libdeepfry import magick, tempdir
+
+RAW_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def listdir(dir):
 	for file in os.listdir(dir):
@@ -11,9 +14,9 @@ def deepfry(input,output,brightness=1,saturation=1,contrast=None,sharpen=None,no
 	tf = tempfile.NamedTemporaryFile(suffix="jpg")
 	magick.convert(input,tf.name,format="jpg")
 	for emoji in emojilocation:
-		magick.composite("emojis/"+emoji[0],tf.name,tf.name,format="jpg",geometry="{:+02}{:+02}".format(*emoji[1:]))
+		magick.composite(os.path.join(RAW_DIR,"emojis",emoji[0]),tf.name,tf.name,format="jpg",geometry="{:+02}{:+02}".format(*emoji[1:]))
 	if noise:
-		magick.composite("noise.jpg",tf.name,tf.name,blend=20)
+		magick.composite(os.path.join(RAW_DIR,"noise.jpg"),tf.name,tf.name,blend=20)
 	magick.convert(tf.name,tf.name,modulate="{},{},100".format(int(round(brightness*100)),int(round(saturation*100))),quality="1%")
 	if contrast is not None:
 		magick.convert(tf.name,tf.name,level="{}%".format(contrast))
