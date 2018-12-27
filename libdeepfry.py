@@ -14,7 +14,7 @@ def deepfry(input,output,brightness=1,saturation=1,contrast=None,sharpen=None,no
 		magick.composite("emojis/"+emoji[0],tf.name,tf.name,format="jpg",geometry="{:+02}{:+02}".format(*emoji[1:]))
 	if noise:
 		magick.composite("noise.jpg",tf.name,tf.name,blend=20)
-	magick.convert(tf.name,tf.name,modulate="{},{},100".format(brightness*100,saturation*100),quality="1%")
+	magick.convert(tf.name,tf.name,modulate="{},{},100".format(int(round(brightness*100)),int(round(saturation*100))),quality="1%")
 	if contrast is not None:
 		magick.convert(tf.name,tf.name,level="{}%".format(contrast))
 	if sharpen is not None:
